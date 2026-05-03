@@ -25,7 +25,7 @@ _google_cx:  contextvars.ContextVar[str] = contextvars.ContextVar("google_cx",  
 class SearchRequest(BaseModel):
     keyword: str
     languages: List[str] = ["en", "fr", "ko"]
-    platforms: List[str] = ["duckduckgo", "youtube", "arxiv", "reddit", "researchgate", "defcon", "blackhat"]
+    platforms: List[str] = ["duckduckgo", "youtube", "arxiv", "reddit", "researchgate", "defcon", "blackhat", "hitb"]
     api_key: Optional[str] = None               # Anthropic API key
     anthropic_base_url: Optional[str] = None    # Custom base URL (proxy / mirror)
     anthropic_model: Optional[str] = None       # Custom model ID
@@ -320,6 +320,13 @@ async def search_blackhat(query: str) -> dict:
     return await _google_cse_with_ddg_fallback(f"site:blackhat.com {query}", "Black Hat")
 
 
+async def search_hitb(query: str) -> dict:
+    # HITB Security Conference — conference.hitb.org and related archives
+    return await _google_cse_with_ddg_fallback(
+        f"site:conference.hitb.org {query} OR site:hitb.org {query}", "HITB"
+    )
+
+
 async def search_ccc(query: str) -> dict:
     # Prioritise media.ccc.de (talk archive) then ccc.de
     return await _google_cse_with_ddg_fallback(
@@ -335,6 +342,7 @@ PLATFORM_SEARCHERS = {
     "researchgate": search_researchgate,
     "defcon":       search_defcon,
     "blackhat":     search_blackhat,
+    "hitb":         search_hitb,
     "ccc":          search_ccc,
 }
 
