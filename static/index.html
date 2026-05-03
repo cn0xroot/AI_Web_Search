@@ -1,0 +1,1747 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WEB 搜索系统</title>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+/* ══════════════════════════════════════════════
+   THEME SYSTEM  — change via [data-theme] on <html>
+   ══════════════════════════════════════════════ */
+
+:root, [data-theme="midnight"] {
+  --bg: #07080f;
+  --surface: #0d1117;
+  --card: #111827;
+  --card-hover: #161f2e;
+  --border: #1e2a3a;
+  --border-light: #243044;
+  --primary: #6366f1;
+  --primary-hover: #818cf8;
+  --secondary: #a78bfa;
+  --text: #f1f5f9;
+  --text-muted: #64748b;
+  --text-soft: #94a3b8;
+  --green: #10b981;
+  --yellow: #f59e0b;
+  /* rgba helper channels */
+  --primary-rgb: 99,102,241;
+  --secondary-rgb: 167,139,250;
+  --bg-rgb: 7,8,15;
+  --primary-text: #c7d2fe;
+  --title-start: #f1f5f9;
+  --radius: 12px;
+  --radius-sm: 8px;
+}
+
+[data-theme="ocean"] {
+  --bg: #060d14;
+  --surface: #091825;
+  --card: #0d2035;
+  --card-hover: #112848;
+  --border: #163550;
+  --border-light: #1c4165;
+  --primary: #0ea5e9;
+  --primary-hover: #38bdf8;
+  --secondary: #22d3ee;
+  --text: #e0f2fe;
+  --text-muted: #4a7a9b;
+  --text-soft: #7ab3cc;
+  --primary-rgb: 14,165,233;
+  --secondary-rgb: 34,211,238;
+  --bg-rgb: 6,13,20;
+  --primary-text: #bae6fd;
+  --title-start: #e0f2fe;
+}
+
+[data-theme="forest"] {
+  --bg: #030b05;
+  --surface: #071a0a;
+  --card: #0c2412;
+  --card-hover: #102d17;
+  --border: #183d20;
+  --border-light: #1e4d28;
+  --primary: #22c55e;
+  --primary-hover: #4ade80;
+  --secondary: #10b981;
+  --text: #dcfce7;
+  --text-muted: #4a7a5a;
+  --text-soft: #86b894;
+  --primary-rgb: 34,197,94;
+  --secondary-rgb: 16,185,129;
+  --bg-rgb: 3,11,5;
+  --primary-text: #bbf7d0;
+  --title-start: #dcfce7;
+}
+
+[data-theme="sunset"] {
+  --bg: #0d0804;
+  --surface: #1a1208;
+  --card: #231a0d;
+  --card-hover: #2d2112;
+  --border: #3d2e18;
+  --border-light: #4d3a22;
+  --primary: #f97316;
+  --primary-hover: #fb923c;
+  --secondary: #fbbf24;
+  --text: #fff7ed;
+  --text-muted: #7a5a3a;
+  --text-soft: #a0784a;
+  --primary-rgb: 249,115,22;
+  --secondary-rgb: 251,191,36;
+  --bg-rgb: 13,8,4;
+  --primary-text: #fed7aa;
+  --title-start: #fff7ed;
+}
+
+[data-theme="rose"] {
+  --bg: #0d0610;
+  --surface: #160b1e;
+  --card: #200f2c;
+  --card-hover: #2a1438;
+  --border: #3a1f4a;
+  --border-light: #4a2860;
+  --primary: #ec4899;
+  --primary-hover: #f472b6;
+  --secondary: #a855f7;
+  --text: #fdf4ff;
+  --text-muted: #7a4a7a;
+  --text-soft: #a078a0;
+  --primary-rgb: 236,72,153;
+  --secondary-rgb: 168,85,247;
+  --bg-rgb: 13,6,16;
+  --primary-text: #fbcfe8;
+  --title-start: #fdf4ff;
+}
+
+[data-theme="nord"] {
+  --bg: #0e1117;
+  --surface: #141b22;
+  --card: #1a2332;
+  --card-hover: #202c40;
+  --border: #263342;
+  --border-light: #2e3f55;
+  --primary: #88c0d0;
+  --primary-hover: #8fbcbb;
+  --secondary: #81a1c1;
+  --text: #eceff4;
+  --text-muted: #4c566a;
+  --text-soft: #7b88a0;
+  --primary-rgb: 136,192,208;
+  --secondary-rgb: 129,161,193;
+  --bg-rgb: 14,17,23;
+  --primary-text: #d8dee9;
+  --title-start: #eceff4;
+}
+
+[data-theme="light"] {
+  --bg: #f1f5f9;
+  --surface: #e2e8f0;
+  --card: #ffffff;
+  --card-hover: #f8fafc;
+  --border: #e2e8f0;
+  --border-light: #cbd5e1;
+  --primary: #6366f1;
+  --primary-hover: #4f46e5;
+  --secondary: #7c3aed;
+  --text: #0f172a;
+  --text-muted: #94a3b8;
+  --text-soft: #475569;
+  --green: #059669;
+  --yellow: #d97706;
+  --primary-rgb: 99,102,241;
+  --secondary-rgb: 124,58,237;
+  --bg-rgb: 241,245,249;
+  --primary-text: #4338ca;
+  --title-start: #1e293b;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
+  font-size: 14px;
+  line-height: 1.6;
+  min-height: 100vh;
+}
+
+/* ── Scrollbar ── */
+::-webkit-scrollbar { width: 5px; height: 5px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border-light); border-radius: 10px; }
+
+/* ── Landing ── */
+#landing {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  padding: 2rem;
+  text-align: center;
+}
+
+.logo-mark {
+  width: 56px; height: 56px;
+  background: linear-gradient(135deg, var(--primary), var(--secondary));
+  border-radius: 16px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 24px; font-weight: 800; color: #fff;
+  margin: 0 auto 1.5rem;
+  box-shadow: 0 0 40px rgba(var(--primary-rgb),0.35);
+}
+
+.landing-title {
+  font-size: 2.2rem;
+  font-weight: 700;
+  background: linear-gradient(135deg, var(--title-start) 30%, var(--secondary));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  line-height: 1.2;
+  margin-bottom: 0.6rem;
+}
+
+.landing-sub {
+  color: var(--text-muted);
+  font-size: 0.95rem;
+  margin-bottom: 2.5rem;
+}
+
+/* ── Search Input ── */
+.search-wrap {
+  width: 100%;
+  max-width: 680px;
+  position: relative;
+  margin-bottom: 1.5rem;
+}
+
+.search-input {
+  width: 100%;
+  background: var(--card);
+  border: 1.5px solid var(--border-light);
+  border-radius: 16px;
+  color: var(--text);
+  font-size: 1rem;
+  padding: 1rem 3.5rem 1rem 1.2rem;
+  resize: none;
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  font-family: inherit;
+}
+.search-input::placeholder { color: var(--text-muted); }
+.search-input:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(var(--primary-rgb),0.15);
+}
+
+.search-btn {
+  position: absolute;
+  right: 10px; bottom: 10px;
+  width: 36px; height: 36px;
+  background: linear-gradient(135deg, var(--primary), var(--secondary));
+  border: none; border-radius: 10px;
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: opacity 0.2s, transform 0.1s;
+}
+.search-btn:hover { opacity: 0.9; }
+.search-btn:active { transform: scale(0.95); }
+.search-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+.search-btn svg { width: 16px; height: 16px; stroke: #fff; }
+
+.options-panel {
+  width: 100%;
+  max-width: 680px;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.option-row {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 0.75rem 1rem;
+}
+
+.option-label {
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-muted);
+  margin-bottom: 0.5rem;
+}
+
+.tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.tag {
+  padding: 0.2rem 0.75rem;
+  border-radius: 99px;
+  font-size: 0.78rem;
+  cursor: pointer;
+  border: 1px solid var(--border-light);
+  background: var(--surface);
+  color: var(--text-soft);
+  transition: all 0.15s;
+  user-select: none;
+}
+.tag.active {
+  background: rgba(var(--primary-rgb),0.15);
+  border-color: rgba(var(--primary-rgb),0.5);
+  color: var(--primary-text);
+}
+.tag:hover:not(.active) { border-color: var(--border-light); background: var(--card-hover); }
+
+.platform-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0.4rem;
+}
+
+.plat-check {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  cursor: pointer;
+  font-size: 0.8rem;
+  color: var(--text-soft);
+  padding: 0.3rem 0.5rem;
+  border-radius: var(--radius-sm);
+  transition: background 0.1s;
+}
+.plat-check:hover { background: var(--card-hover); }
+.plat-check input[type=checkbox] { accent-color: var(--primary); width: 13px; height: 13px; }
+
+.settings-row {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  margin-top: 0.5rem;
+}
+
+.settings-btn {
+  background: none;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  color: var(--text-muted);
+  padding: 0.3rem 0.7rem;
+  font-size: 0.75rem;
+  cursor: pointer;
+  display: flex; align-items: center; gap: 0.3rem;
+  transition: all 0.15s;
+}
+.settings-btn:hover { border-color: var(--border-light); color: var(--text-soft); }
+
+/* ── Results Page ── */
+#results-page { display: none; flex-direction: column; min-height: 100vh; }
+
+.sticky-header {
+  position: sticky; top: 0; z-index: 100;
+  background: rgba(var(--bg-rgb),0.92);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border);
+  padding: 0.75rem 1.5rem;
+  display: flex; align-items: center; gap: 1rem;
+}
+
+.header-logo {
+  width: 32px; height: 32px;
+  background: linear-gradient(135deg, var(--primary), var(--secondary));
+  border-radius: 9px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 14px; font-weight: 800; color: #fff;
+  flex-shrink: 0; cursor: pointer;
+}
+
+.header-search-wrap {
+  flex: 1; max-width: 500px;
+  position: relative;
+}
+.header-search {
+  width: 100%;
+  background: var(--card);
+  border: 1px solid var(--border-light);
+  border-radius: 10px;
+  color: var(--text);
+  font-size: 0.9rem;
+  padding: 0.5rem 2.5rem 0.5rem 0.9rem;
+  outline: none;
+  transition: border-color 0.15s;
+  font-family: inherit;
+}
+.header-search:focus { border-color: var(--primary); }
+.header-search-btn {
+  position: absolute; right: 6px; top: 50%;
+  transform: translateY(-50%);
+  background: var(--primary);
+  border: none; border-radius: 6px;
+  width: 26px; height: 26px;
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+}
+.header-search-btn svg { width: 13px; height: 13px; stroke: #fff; }
+
+.header-actions {
+  display: flex; align-items: center; gap: 0.5rem;
+  margin-left: auto;
+}
+
+.icon-btn {
+  background: none;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  color: var(--text-muted);
+  padding: 0.35rem 0.7rem;
+  font-size: 0.75rem;
+  cursor: pointer;
+  display: flex; align-items: center; gap: 0.3rem;
+  transition: all 0.15s;
+  white-space: nowrap;
+}
+.icon-btn:hover { border-color: var(--border-light); color: var(--text-soft); background: var(--card); }
+.icon-btn svg { width: 13px; height: 13px; }
+
+.results-body {
+  max-width: 840px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 1.5rem 1.5rem 4rem;
+}
+
+/* ── Translation Pills ── */
+.trans-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin-bottom: 1.25rem;
+  align-items: center;
+}
+
+.trans-pill {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 99px;
+  padding: 0.25rem 0.75rem;
+  font-size: 0.78rem;
+  cursor: pointer;
+  transition: all 0.15s;
+  user-select: none;
+}
+.trans-pill:hover { border-color: var(--border-light); background: var(--card-hover); }
+.trans-pill.active {
+  background: rgba(var(--primary-rgb),0.15);
+  border-color: rgba(var(--primary-rgb),0.5);
+}
+.trans-pill.active .lang-badge { color: var(--primary-text); }
+.trans-pill .lang-badge {
+  font-size: 0.65rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: var(--secondary);
+}
+.trans-pill .lang-text { color: var(--text-soft); }
+
+/* YouTube thumbnail card */
+.yt-card {
+  display: flex;
+  gap: 0.75rem;
+  align-items: flex-start;
+}
+.yt-thumb {
+  flex-shrink: 0;
+  width: 100px;
+  height: 56px;
+  border-radius: 6px;
+  object-fit: cover;
+  background: var(--border);
+}
+.yt-card-body { flex: 1; min-width: 0; }
+
+/* ── AI Summary ── */
+#summary-card {
+  display: none;
+  background: linear-gradient(135deg, rgba(var(--primary-rgb),0.08), rgba(var(--secondary-rgb),0.06));
+  border: 1px solid rgba(var(--primary-rgb),0.25);
+  border-radius: var(--radius);
+  padding: 1.25rem 1.5rem;
+  margin-bottom: 1.25rem;
+  position: relative;
+  overflow: hidden;
+}
+#summary-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, var(--primary), var(--secondary));
+}
+.summary-header {
+  display: flex; align-items: center; gap: 0.5rem;
+  font-size: 0.8rem; font-weight: 600;
+  color: var(--secondary);
+  margin-bottom: 0.75rem;
+  text-transform: uppercase; letter-spacing: 0.06em;
+}
+.summary-header svg { width: 14px; height: 14px; }
+#summary-text {
+  color: var(--text-soft);
+  font-size: 0.92rem;
+  line-height: 1.75;
+}
+
+/* ── Platform Tabs ── */
+.plat-tabs {
+  display: flex;
+  gap: 0.2rem;
+  overflow-x: auto;
+  padding-bottom: 0.25rem;
+  margin-bottom: 1.25rem;
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 0;
+}
+.plat-tabs::-webkit-scrollbar { height: 0; }
+
+.plat-tab {
+  display: flex; align-items: center; gap: 0.35rem;
+  padding: 0.5rem 1rem;
+  font-size: 0.82rem;
+  color: var(--text-muted);
+  cursor: pointer;
+  border: none;
+  background: none;
+  white-space: nowrap;
+  border-bottom: 2px solid transparent;
+  transition: color 0.15s, border-color 0.15s;
+  position: relative;
+  bottom: -1px;
+}
+.plat-tab:hover { color: var(--text-soft); }
+.plat-tab.active { color: var(--primary-hover); border-bottom-color: var(--primary); }
+.plat-tab .tab-count {
+  background: var(--surface);
+  border-radius: 99px;
+  padding: 0 0.4rem;
+  font-size: 0.68rem;
+  color: var(--text-muted);
+  min-width: 18px; text-align: center;
+}
+.plat-tab.active .tab-count { background: rgba(var(--primary-rgb),0.2); color: var(--primary-text); }
+
+/* ── Results ── */
+.platform-section { margin-bottom: 1.75rem; }
+
+.plat-section-header {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 0.6rem;
+}
+.plat-section-title {
+  display: flex; align-items: center; gap: 0.5rem;
+  font-size: 0.82rem; font-weight: 600;
+  color: var(--text-soft);
+}
+.plat-dot {
+  width: 8px; height: 8px; border-radius: 50%;
+}
+.plat-link {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  text-decoration: none;
+  display: flex; align-items: center; gap: 0.2rem;
+  transition: color 0.15s;
+}
+.plat-link:hover { color: var(--primary-hover); }
+.plat-link svg { width: 10px; height: 10px; }
+
+/* Result Card */
+.result-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 0.9rem 1.1rem;
+  margin-bottom: 0.5rem;
+  transition: border-color 0.15s, background 0.15s;
+  cursor: pointer;
+  text-decoration: none;
+  display: block;
+  animation: fadeUp 0.3s ease both;
+}
+.result-card:hover {
+  background: var(--card-hover);
+  border-color: var(--border-light);
+}
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.card-meta {
+  display: flex; align-items: center; gap: 0.5rem;
+  margin-bottom: 0.35rem;
+}
+.card-domain {
+  font-size: 0.72rem; color: var(--text-muted);
+  display: flex; align-items: center; gap: 0.25rem;
+}
+.card-domain img { width: 12px; height: 12px; border-radius: 2px; }
+.card-badge {
+  font-size: 0.65rem; font-weight: 700;
+  padding: 0.1rem 0.4rem;
+  border-radius: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin-left: auto;
+}
+
+.card-title {
+  font-size: 0.93rem; font-weight: 600;
+  color: var(--text);
+  line-height: 1.4;
+  margin-bottom: 0.3rem;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.card-snippet {
+  font-size: 0.8rem; color: var(--text-muted);
+  line-height: 1.5;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.card-footer {
+  display: flex; align-items: center; gap: 0.75rem;
+  margin-top: 0.5rem;
+  font-size: 0.7rem; color: var(--text-muted);
+}
+
+/* Link-only card */
+.link-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 0.9rem 1.1rem;
+  display: flex; align-items: center; justify-content: space-between;
+  text-decoration: none;
+  transition: border-color 0.15s, background 0.15s;
+  animation: fadeUp 0.3s ease both;
+}
+.link-card:hover { background: var(--card-hover); border-color: var(--border-light); }
+.link-card-left { display: flex; align-items: center; gap: 0.6rem; }
+.link-card-label { font-size: 0.85rem; font-weight: 500; color: var(--text-soft); }
+.link-card-sub { font-size: 0.72rem; color: var(--text-muted); margin-top: 0.1rem; }
+.link-card-arrow { color: var(--text-muted); }
+.link-card-arrow svg { width: 14px; height: 14px; }
+
+/* Loading skeleton */
+.skeleton-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 0.9rem 1.1rem;
+  margin-bottom: 0.5rem;
+  animation: pulse 1.5s ease infinite;
+}
+@keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.4; } }
+.skel-line {
+  background: var(--border-light);
+  border-radius: 4px;
+  margin-bottom: 0.5rem;
+}
+
+/* Progress bar */
+.progress-bar {
+  width: 100%; height: 2px;
+  background: var(--border);
+  border-radius: 1px;
+  overflow: hidden;
+  margin-bottom: 1.5rem;
+}
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--primary), var(--secondary));
+  border-radius: 1px;
+  transition: width 0.4s ease;
+}
+
+/* Platform colors */
+.p-ddg   { background: rgba(222,88,51,0.15); color: #f97316; }
+.p-yt    { background: rgba(255,0,0,0.12); color: #f87171; }
+.p-arxiv { background: rgba(179,27,27,0.15); color: #fca5a5; }
+.p-rdt   { background: rgba(255,69,0,0.15); color: #fb923c; }
+.p-rg    { background: rgba(0,169,180,0.15); color: #34d399; }
+.p-dc    { background: rgba(255,215,0,0.12); color: #fcd34d; }
+.p-bh    { background: rgba(220,38,38,0.12); color: #f87171; }
+.p-ccc   { background: rgba(168,85,247,0.12); color: #c084fc; }
+
+.dot-ddg   { background: #f97316; }
+.dot-yt    { background: #f87171; }
+.dot-arxiv { background: #fca5a5; }
+.dot-rdt   { background: #fb923c; }
+.dot-rg    { background: #34d399; }
+.dot-dc    { background: #fcd34d; }
+.dot-bh    { background: #f87171; }
+.dot-ccc   { background: #c084fc; }
+
+/* Modal */
+.modal-overlay {
+  display: none;
+  position: fixed; inset: 0; z-index: 200;
+  background: rgba(0,0,0,0.7);
+  backdrop-filter: blur(4px);
+  align-items: center; justify-content: center;
+}
+.modal-overlay.open { display: flex; }
+.modal {
+  background: var(--card);
+  border: 1px solid var(--border-light);
+  border-radius: 16px;
+  padding: 1.5rem;
+  width: 420px;
+  max-width: 90vw;
+}
+.modal h3 { font-size: 1rem; font-weight: 600; margin-bottom: 1rem; }
+.modal label { font-size: 0.78rem; color: var(--text-muted); display: block; margin-bottom: 0.3rem; }
+.modal input {
+  width: 100%;
+  background: var(--surface);
+  border: 1px solid var(--border-light);
+  border-radius: 8px;
+  color: var(--text);
+  padding: 0.5rem 0.75rem;
+  font-size: 0.85rem;
+  outline: none;
+  font-family: monospace;
+  margin-bottom: 0.75rem;
+}
+.modal input:focus { border-color: var(--primary); }
+.modal-hint { font-size: 0.72rem; color: var(--text-muted); margin-bottom: 1rem; line-height: 1.5; }
+.modal-actions { display: flex; gap: 0.5rem; justify-content: flex-end; }
+.btn { padding: 0.45rem 1rem; border-radius: 8px; font-size: 0.82rem; cursor: pointer; border: none; transition: opacity 0.15s; }
+.btn-primary { background: var(--primary); color: #fff; }
+.btn-primary:hover { opacity: 0.85; }
+.btn-ghost { background: transparent; border: 1px solid var(--border-light); color: var(--text-muted); }
+.btn-ghost:hover { background: var(--card-hover); }
+
+/* Toast */
+.toast {
+  position: fixed; bottom: 1.5rem; right: 1.5rem; z-index: 300;
+  background: var(--card);
+  border: 1px solid var(--border-light);
+  border-radius: 10px;
+  padding: 0.65rem 1rem;
+  font-size: 0.82rem;
+  color: var(--text-soft);
+  display: flex; align-items: center; gap: 0.5rem;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.4);
+  transform: translateY(8px); opacity: 0;
+  transition: all 0.25s;
+}
+.toast.show { transform: translateY(0); opacity: 1; }
+.toast svg { width: 14px; height: 14px; color: var(--green); }
+
+/* ── Bilingual display ── */
+.card-title-zh {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  margin-top: 0.15rem;
+  margin-bottom: 0.3rem;
+  display: flex;
+  align-items: baseline;
+  gap: 0.35rem;
+}
+.card-title-zh .zh-badge {
+  font-size: 0.6rem;
+  font-weight: 700;
+  background: rgba(var(--primary-rgb),0.15);
+  color: var(--primary-text);
+  border-radius: 3px;
+  padding: 0.05rem 0.3rem;
+  flex-shrink: 0;
+  letter-spacing: 0.03em;
+}
+.card-snippet-zh {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  font-style: italic;
+  line-height: 1.5;
+  margin-top: 0.2rem;
+  border-left: 2px solid var(--border-light);
+  padding-left: 0.5rem;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.zh-sep {
+  border: none;
+  border-top: 1px solid var(--border);
+  margin: 0.4rem 0;
+  opacity: 0.5;
+}
+/* Hide zh elements when bilingual mode is off */
+body.lang-original .card-title-zh,
+body.lang-original .card-snippet-zh,
+body.lang-original .zh-sep { display: none; }
+body.lang-chinese .card-title { display: none; }
+body.lang-chinese .card-snippet { display: none; }
+body.lang-chinese .card-title-zh { font-size: 0.93rem; font-weight: 600; color: var(--text); }
+body.lang-chinese .card-title-zh .zh-badge { display: none; }
+body.lang-chinese .card-snippet-zh {
+  font-style: normal; border-left: none; padding-left: 0;
+  font-size: 0.8rem; color: var(--text-muted);
+}
+
+/* Toggle group */
+.lang-toggle {
+  display: flex;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 2px;
+  gap: 1px;
+}
+.lang-toggle button {
+  padding: 0.25rem 0.6rem;
+  border-radius: 6px;
+  border: none;
+  font-size: 0.72rem;
+  cursor: pointer;
+  background: none;
+  color: var(--text-muted);
+  transition: all 0.15s;
+  white-space: nowrap;
+}
+.lang-toggle button.active {
+  background: var(--card);
+  color: var(--text-soft);
+  box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+}
+
+/* ── Theme picker ── */
+.theme-picker {
+  position: relative;
+  display: inline-flex;
+}
+.theme-btn {
+  display: flex; align-items: center; gap: 0.3rem;
+  background: none;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  color: var(--text-muted);
+  padding: 0.3rem 0.65rem;
+  font-size: 0.75rem;
+  cursor: pointer;
+  transition: all 0.15s;
+  white-space: nowrap;
+}
+.theme-btn:hover { border-color: var(--border-light); color: var(--text-soft); }
+.theme-btn svg { width: 13px; height: 13px; }
+
+.theme-popover {
+  display: none;
+  position: absolute;
+  top: calc(100% + 6px);
+  right: 0;
+  background: var(--card);
+  border: 1px solid var(--border-light);
+  border-radius: 12px;
+  padding: 0.75rem;
+  z-index: 150;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+  min-width: 180px;
+}
+.theme-popover.open { display: block; }
+
+.theme-popover-title {
+  font-size: 0.68rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-muted);
+  margin-bottom: 0.6rem;
+}
+
+.theme-swatches {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0.4rem;
+}
+
+.theme-swatch {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.3rem;
+  cursor: pointer;
+  padding: 0.3rem;
+  border-radius: 8px;
+  border: 1px solid transparent;
+  transition: all 0.15s;
+}
+.theme-swatch:hover { background: var(--card-hover); border-color: var(--border-light); }
+.theme-swatch.active { background: rgba(var(--primary-rgb),0.1); border-color: rgba(var(--primary-rgb),0.4); }
+
+.swatch-circle {
+  width: 26px; height: 26px;
+  border-radius: 50%;
+  border: 2px solid rgba(255,255,255,0.15);
+}
+.swatch-label {
+  font-size: 0.62rem;
+  color: var(--text-muted);
+  text-align: center;
+  line-height: 1.2;
+}
+.theme-swatch.active .swatch-label { color: var(--primary-text); }
+
+/* Swatch gradients */
+.sw-midnight { background: linear-gradient(135deg, #07080f 50%, #6366f1); }
+.sw-ocean    { background: linear-gradient(135deg, #060d14 50%, #0ea5e9); }
+.sw-forest   { background: linear-gradient(135deg, #030b05 50%, #22c55e); }
+.sw-sunset   { background: linear-gradient(135deg, #0d0804 50%, #f97316); }
+.sw-rose     { background: linear-gradient(135deg, #0d0610 50%, #ec4899); }
+.sw-nord     { background: linear-gradient(135deg, #0e1117 50%, #88c0d0); }
+.sw-light    { background: linear-gradient(135deg, #f1f5f9 50%, #6366f1); }
+
+/* No AI hint */
+.ai-hint {
+  display: flex; align-items: center; gap: 0.5rem;
+  font-size: 0.75rem; color: var(--text-muted);
+  background: var(--card);
+  border: 1px dashed var(--border);
+  border-radius: var(--radius);
+  padding: 0.65rem 1rem;
+  margin-bottom: 1.25rem;
+}
+.ai-hint a { color: var(--primary-hover); text-decoration: none; }
+.ai-hint a:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+
+<!-- ═══════════════════════════ LANDING ═══════════════════════════ -->
+<div id="landing">
+  <div class="logo-mark">S</div>
+  <h1 class="landing-title">AI 多语言研究搜索</h1>
+  <p class="landing-sub">翻译关键词 · 并发多平台搜索 · AI 综合分析</p>
+
+  <div class="search-wrap">
+    <textarea id="kw-landing" class="search-input" rows="2"
+      placeholder="输入关键词（支持中文、英文...）按 Ctrl+Enter 搜索"></textarea>
+    <button class="search-btn" onclick="startSearch()" title="搜索 (Ctrl+Enter)">
+      <svg fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+      </svg>
+    </button>
+  </div>
+
+  <div class="options-panel">
+    <div class="option-row">
+      <div class="option-label">翻译语言</div>
+      <div class="tags" id="lang-tags">
+        <span class="tag active" data-lang="en">英语</span>
+        <span class="tag active" data-lang="fr">法语</span>
+        <span class="tag active" data-lang="ko">韩语</span>
+        <span class="tag" data-lang="ja">日语</span>
+        <span class="tag" data-lang="de">德语</span>
+        <span class="tag" data-lang="es">西班牙语</span>
+        <span class="tag" data-lang="ru">俄语</span>
+      </div>
+    </div>
+    <div class="option-row">
+      <div class="option-label">搜索平台</div>
+      <div class="platform-grid" id="plat-checks">
+        <label class="plat-check"><input type="checkbox" checked value="duckduckgo"> DuckDuckGo</label>
+        <label class="plat-check"><input type="checkbox" checked value="youtube"> YouTube</label>
+        <label class="plat-check"><input type="checkbox" checked value="arxiv"> arXiv</label>
+        <label class="plat-check"><input type="checkbox" checked value="reddit"> Reddit</label>
+        <label class="plat-check"><input type="checkbox" checked value="researchgate"> ResearchGate</label>
+        <label class="plat-check"><input type="checkbox" checked value="defcon"> DEF CON</label>
+        <label class="plat-check"><input type="checkbox" checked value="blackhat"> Black Hat</label>
+        <label class="plat-check"><input type="checkbox" checked value="ccc"> CCC</label>
+      </div>
+    </div>
+    <div class="settings-row">
+      <div class="theme-picker" id="tp-landing">
+        <button class="settings-btn theme-btn" onclick="toggleThemePicker('tp-landing')">
+          <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01"/>
+          </svg>
+          主题
+        </button>
+        <div class="theme-popover" id="tp-landing-pop"></div>
+      </div>
+      <button class="settings-btn" onclick="openSettings()">
+        <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="width:12px;height:12px">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
+          <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+        </svg>
+        AI 摘要设置
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════ RESULTS PAGE ═══════════════════════════ -->
+<div id="results-page">
+  <!-- Sticky header -->
+  <header class="sticky-header">
+    <div class="header-logo" onclick="backToLanding()">S</div>
+    <div class="header-search-wrap">
+      <input id="kw-header" class="header-search" type="text" placeholder="重新搜索...">
+      <button class="header-search-btn" onclick="headerSearch()">
+        <svg fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+        </svg>
+      </button>
+    </div>
+    <div class="header-actions">
+      <div class="theme-picker" id="tp-header">
+        <button class="icon-btn theme-btn" onclick="toggleThemePicker('tp-header')">
+          <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01"/>
+          </svg>
+          主题
+        </button>
+        <div class="theme-popover" id="tp-header-pop"></div>
+      </div>
+      <div class="lang-toggle">
+        <button id="lt-bilingual" class="active" onclick="setLangMode('bilingual')">双语</button>
+        <button id="lt-chinese" onclick="setLangMode('chinese')">中文</button>
+        <button id="lt-original" onclick="setLangMode('original')">原文</button>
+      </div>
+      <button class="icon-btn" onclick="copyMarkdown()">
+        <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/>
+        </svg>
+        复制 MD
+      </button>
+      <button class="icon-btn" onclick="openSettings()">
+        <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="width:12px;height:12px">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
+          <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+        </svg>
+        设置
+      </button>
+    </div>
+  </header>
+
+  <!-- Body -->
+  <div class="results-body">
+    <!-- Progress -->
+    <div class="progress-bar"><div class="progress-fill" id="progress-fill" style="width:0%"></div></div>
+
+    <!-- Translations -->
+    <div class="trans-row" id="trans-row"></div>
+    <div id="search-lang-bar" style="display:none;align-items:center;gap:0.5rem;margin-bottom:1rem;font-size:0.75rem;color:var(--text-muted)">
+      <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="width:13px;height:13px;flex-shrink:0"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+      正在以 <strong id="search-lang-label" style="color:var(--primary-hover)"></strong> 搜索：<span id="search-lang-query" style="color:var(--text-soft)"></span>
+      <button onclick="resetSearchLang()" style="margin-left:auto;background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:0.72rem;text-decoration:underline">恢复英文搜索</button>
+    </div>
+
+    <!-- AI Summary -->
+    <div id="summary-card">
+      <div class="summary-header">
+        <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/>
+        </svg>
+        AI 综合分析
+      </div>
+      <p id="summary-text"></p>
+    </div>
+
+    <!-- No-AI hint (shown when no key) -->
+    <div id="ai-hint" class="ai-hint" style="display:none">
+      <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="width:14px;height:14px;flex-shrink:0">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+      </svg>
+      配置 <a href="#" onclick="openSettings();return false">Anthropic API Key</a> 以启用 AI 综合分析功能
+    </div>
+
+    <!-- Platform tabs -->
+    <div class="plat-tabs" id="plat-tabs">
+      <button class="plat-tab active" data-filter="all" onclick="setFilter('all')">
+        全部 <span class="tab-count" id="count-all">0</span>
+      </button>
+    </div>
+
+    <!-- Results list -->
+    <div id="results-list"></div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════ SETTINGS MODAL ═══════════════════════════ -->
+<div class="modal-overlay" id="settings-modal" onclick="if(event.target===this)closeSettings()">
+  <div class="modal">
+    <h3>⚙️ API 配置</h3>
+
+    <div style="font-size:0.7rem;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--text-muted);margin-bottom:0.6rem;padding-bottom:0.4rem;border-bottom:1px solid var(--border)">Google 搜索</div>
+    <label>Google API Key</label>
+    <input type="password" id="google-key-input" placeholder="AIza..." autocomplete="off">
+    <label>Search Engine ID (cx)</label>
+    <input type="text" id="google-cx-input" placeholder="017576662512468239146:omuauf_lfve" autocomplete="off">
+    <div style="display:flex;align-items:center;gap:0.5rem;margin-bottom:0.75rem">
+      <button class="btn btn-ghost" style="font-size:0.75rem;padding:0.3rem 0.75rem" onclick="testGoogleApi()">🔌 测试连接</button>
+      <span id="google-test-result" style="font-size:0.75rem;color:var(--text-muted)"></span>
+    </div>
+    <p class="modal-hint">
+      前往 <a href="https://programmablesearchengine.google.com" target="_blank" style="color:#818cf8">Programmable Search Engine</a> 创建搜索引擎获取 cx（勾选"搜索整个网络"）；<br>
+      在 <a href="https://console.cloud.google.com/apis/library/customsearch.googleapis.com" target="_blank" style="color:#818cf8">Google Cloud Console</a> 启用 Custom Search API 并获取 Key。<br>
+      未配置或失败时自动回退到 DuckDuckGo。
+    </p>
+
+    <div style="font-size:0.7rem;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--text-muted);margin-bottom:0.6rem;padding-bottom:0.4rem;border-bottom:1px solid var(--border);margin-top:0.25rem">AI 摘要（Anthropic）</div>
+    <label>API Key</label>
+    <input type="password" id="api-key-input" placeholder="sk-ant-api03-..." autocomplete="off">
+    <label>API Base URL <span style="font-weight:400;color:var(--text-muted)">（中转站地址，留空使用官方）</span></label>
+    <input type="text" id="anthropic-base-url-input" placeholder="https://your-proxy.com/v1" autocomplete="off">
+    <label>Model ID <span style="font-weight:400;color:var(--text-muted)">（留空使用默认）</span></label>
+    <input type="text" id="anthropic-model-input" placeholder="claude-haiku-4-5-20251001" autocomplete="off">
+    <p class="modal-hint">
+      官方 Key：<a href="https://console.anthropic.com" target="_blank" style="color:#818cf8">console.anthropic.com</a>
+      中转站只需填写 Base URL，Key 格式依中转站要求填写。<br>
+      所有配置仅保存在浏览器本地（localStorage）。
+    </p>
+
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeSettings()">取消</button>
+      <button class="btn btn-primary" onclick="saveSettings()">保存</button>
+    </div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast">
+  <svg fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+    <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
+  </svg>
+  <span id="toast-text">已复制</span>
+</div>
+
+<script>
+// ── State ──────────────────────────────────────────────────────────────────────
+const state = {
+  keyword: '',
+  searchQuery: '',
+  queryOverride: null,   // when set, use this instead of English translation
+  activeLangIdx: null,   // index into state.translations of the active lang pill
+  translations: [],
+  platforms: {},
+  platformOrder: [],
+  summary: '',
+  filter: 'all',
+  totalResults: 0,
+  pendingCount: 0,
+};
+
+// Platform display config
+const PLAT_CONFIG = {
+  'DuckDuckGo':   { dot: 'dot-ddg',   badge: 'p-ddg',   icon: '🔍' },
+  'YouTube':      { dot: 'dot-yt',    badge: 'p-yt',    icon: '▶' },
+  'arXiv':        { dot: 'dot-arxiv', badge: 'p-arxiv', icon: '📄' },
+  'Reddit':       { dot: 'dot-rdt',   badge: 'p-rdt',   icon: '💬' },
+  'ResearchGate': { dot: 'dot-rg',    badge: 'p-rg',    icon: '🔬' },
+  'DEF CON':      { dot: 'dot-dc',    badge: 'p-dc',    icon: '🛡' },
+  'Black Hat':    { dot: 'dot-bh',    badge: 'p-bh',    icon: '🎩' },
+  'CCC':          { dot: 'dot-ccc',   badge: 'p-ccc',   icon: '💀' },
+};
+
+function getPlatConf(name) {
+  return PLAT_CONFIG[name] || { dot: '', badge: '', icon: '🌐' };
+}
+
+// ── Theme system ──────────────────────────────────────────────────────────────
+const THEMES = [
+  { id: 'midnight', label: '暗夜',   sw: 'sw-midnight' },
+  { id: 'ocean',    label: '海洋',   sw: 'sw-ocean'    },
+  { id: 'forest',   label: '森林',   sw: 'sw-forest'   },
+  { id: 'sunset',   label: '暮色',   sw: 'sw-sunset'   },
+  { id: 'rose',     label: '玫瑰',   sw: 'sw-rose'     },
+  { id: 'nord',     label: 'Nord',   sw: 'sw-nord'     },
+  { id: 'light',    label: '浅色',   sw: 'sw-light'    },
+];
+
+function buildPopoverHtml(activePicker) {
+  return `<div class="theme-popover-title">选择主题</div>
+  <div class="theme-swatches">
+    ${THEMES.map(t => `
+      <div class="theme-swatch${document.documentElement.dataset.theme === t.id ? ' active' : ''}"
+           onclick="setTheme('${t.id}','${activePicker}')">
+        <div class="swatch-circle ${t.sw}"></div>
+        <div class="swatch-label">${t.label}</div>
+      </div>`).join('')}
+  </div>`;
+}
+
+function renderPopovers() {
+  ['tp-landing-pop', 'tp-header-pop'].forEach((id, i) => {
+    const el = document.getElementById(id);
+    if (el) el.innerHTML = buildPopoverHtml(['tp-landing','tp-header'][i]);
+  });
+}
+
+function toggleThemePicker(pickerId) {
+  const pop = document.getElementById(pickerId + '-pop');
+  const isOpen = pop.classList.contains('open');
+  // Close all
+  document.querySelectorAll('.theme-popover').forEach(p => p.classList.remove('open'));
+  if (!isOpen) {
+    renderPopovers();
+    pop.classList.add('open');
+  }
+}
+
+function setTheme(themeId, activePicker) {
+  document.documentElement.dataset.theme = themeId;
+  localStorage.setItem('theme', themeId);
+  // Close popover & re-render to update active state
+  document.querySelectorAll('.theme-popover').forEach(p => {
+    p.classList.remove('open');
+    p.innerHTML = '';
+  });
+}
+
+// Close popover when clicking outside
+document.addEventListener('click', e => {
+  if (!e.target.closest('.theme-picker')) {
+    document.querySelectorAll('.theme-popover').forEach(p => p.classList.remove('open'));
+  }
+});
+
+// Init theme on load
+(function() {
+  const saved = localStorage.getItem('theme') || 'midnight';
+  document.documentElement.dataset.theme = saved;
+})();
+
+// ── Settings ──────────────────────────────────────────────────────────────────
+function openSettings() {
+  document.getElementById('api-key-input').value            = localStorage.getItem('anthropic_key')      || '';
+  document.getElementById('anthropic-base-url-input').value = localStorage.getItem('anthropic_base_url') || '';
+  document.getElementById('anthropic-model-input').value    = localStorage.getItem('anthropic_model')    || '';
+  document.getElementById('google-key-input').value         = localStorage.getItem('google_api_key')     || '';
+  document.getElementById('google-cx-input').value          = localStorage.getItem('google_cx')          || '';
+  document.getElementById('settings-modal').classList.add('open');
+}
+function closeSettings() {
+  document.getElementById('settings-modal').classList.remove('open');
+}
+function saveSettings() {
+  const setOrClear = (lsKey, val) => val ? localStorage.setItem(lsKey, val) : localStorage.removeItem(lsKey);
+  setOrClear('anthropic_key',      document.getElementById('api-key-input').value.trim());
+  setOrClear('anthropic_base_url', document.getElementById('anthropic-base-url-input').value.trim());
+  setOrClear('anthropic_model',    document.getElementById('anthropic-model-input').value.trim());
+  setOrClear('google_api_key',     document.getElementById('google-key-input').value.trim());
+  setOrClear('google_cx',          document.getElementById('google-cx-input').value.trim());
+  closeSettings();
+  showToast('设置已保存');
+}
+
+async function testGoogleApi() {
+  const key = document.getElementById('google-key-input').value.trim();
+  const cx  = document.getElementById('google-cx-input').value.trim();
+  const el  = document.getElementById('google-test-result');
+  el.style.color = 'var(--text-muted)';
+  el.textContent = '测试中…';
+  try {
+    const resp = await fetch('/api/test-google', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ google_api_key: key, google_cx: cx }),
+    });
+    const data = await resp.json();
+    if (data.ok) {
+      el.style.color = 'var(--green)';
+      el.textContent = `✓ 连接正常，返回 ${data.result_count} 条结果`;
+    } else {
+      el.style.color = '#f87171';
+      el.textContent = `✗ ${data.error}`;
+    }
+  } catch (e) {
+    el.style.color = '#f87171';
+    el.textContent = `✗ 请求失败：${e.message}`;
+  }
+}
+
+// ── Helpers ──────────────────────────────────────────────────────────────────
+function getSelectedLangs() {
+  return [...document.querySelectorAll('#lang-tags .tag.active')].map(t => t.dataset.lang);
+}
+function getSelectedPlatforms() {
+  return [...document.querySelectorAll('#plat-checks input:checked')].map(i => i.value);
+}
+function showToast(msg) {
+  const el = document.getElementById('toast');
+  document.getElementById('toast-text').textContent = msg;
+  el.classList.add('show');
+  setTimeout(() => el.classList.remove('show'), 2200);
+}
+function escHtml(s) {
+  return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+// ── Navigation ────────────────────────────────────────────────────────────────
+function backToLanding() {
+  document.getElementById('landing').style.display = 'flex';
+  document.getElementById('results-page').style.display = 'none';
+}
+function showResultsPage() {
+  document.getElementById('landing').style.display = 'none';
+  document.getElementById('results-page').style.display = 'flex';
+  document.getElementById('results-page').style.flexDirection = 'column';
+}
+
+// ── Search ────────────────────────────────────────────────────────────────────
+function startSearch() {
+  const kw = document.getElementById('kw-landing').value.trim();
+  if (!kw) return;
+  runSearch(kw);
+}
+
+function headerSearch() {
+  const kw = document.getElementById('kw-header').value.trim();
+  if (!kw) return;
+  document.getElementById('kw-landing').value = kw;
+  runSearch(kw);
+}
+
+// Search using a specific translated query (called when a pill is clicked)
+function searchWithLang(idx) {
+  const t = state.translations[idx];
+  if (!t) return;
+  state.queryOverride = t.text;
+  state.activeLangIdx = idx;
+  runSearch(state.keyword);
+}
+
+function resetSearchLang() {
+  state.queryOverride = null;
+  state.activeLangIdx = null;
+  runSearch(state.keyword);
+}
+
+async function runSearch(keyword) {
+  const langs = getSelectedLangs();
+  const platforms = getSelectedPlatforms();
+  if (!langs.length) { showToast('请选择翻译语言'); return; }
+  if (!platforms.length) { showToast('请选择搜索平台'); return; }
+
+  // Preserve queryOverride/activeLangIdx across re-search unless keyword changed
+  const isNewKeyword = keyword !== state.keyword;
+  if (isNewKeyword) { state.queryOverride = null; state.activeLangIdx = null; }
+
+  // Reset state (keep override)
+  const override = state.queryOverride;
+  const activeLang = state.activeLangIdx;
+  Object.assign(state, {
+    keyword, searchQuery: keyword,
+    queryOverride: override, activeLangIdx: activeLang,
+    translations: [], platforms: {}, platformOrder: [],
+    summary: '', filter: 'all', totalResults: 0,
+    pendingCount: platforms.length,
+  });
+
+  showResultsPage();
+  document.getElementById('kw-header').value = keyword;
+  document.getElementById('trans-row').innerHTML = '';
+  document.getElementById('results-list').innerHTML = '';
+  document.getElementById('summary-card').style.display = 'none';
+  document.getElementById('summary-text').textContent = '';
+  // Update search-lang bar
+  const bar = document.getElementById('search-lang-bar');
+  if (state.queryOverride && state.activeLangIdx !== null) {
+    const t = state.translations[state.activeLangIdx] || {};
+    document.getElementById('search-lang-label').textContent = t.language || '';
+    document.getElementById('search-lang-query').textContent = state.queryOverride;
+    bar.style.display = 'flex';
+  } else {
+    bar.style.display = 'none';
+  }
+  document.getElementById('ai-hint').style.display = 'none';
+
+  // Reset tabs
+  const tabsEl = document.getElementById('plat-tabs');
+  tabsEl.innerHTML = `<button class="plat-tab active" data-filter="all" onclick="setFilter('all')">
+    全部 <span class="tab-count" id="count-all">0</span>
+  </button>`;
+
+  // Skeleton loaders
+  const listEl = document.getElementById('results-list');
+  for (const p of platforms) {
+    listEl.insertAdjacentHTML('beforeend', skeletonSection(p));
+  }
+
+  // Progress
+  setProgress(5);
+
+  const apiKey          = localStorage.getItem('anthropic_key')      || '';
+  const anthropicBaseUrl = localStorage.getItem('anthropic_base_url') || '';
+  const anthropicModel   = localStorage.getItem('anthropic_model')    || '';
+  const googleApiKey    = localStorage.getItem('google_api_key')     || '';
+  const googleCx        = localStorage.getItem('google_cx')          || '';
+
+  try {
+    const resp = await fetch('/search-stream', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        keyword, languages: langs, platforms,
+        api_key: apiKey,
+        anthropic_base_url: anthropicBaseUrl || null,
+        anthropic_model:    anthropicModel   || null,
+        google_api_key: googleApiKey,
+        google_cx: googleCx,
+        query_override: state.queryOverride || null,
+      }),
+    });
+
+    const reader = resp.body.getReader();
+    const dec = new TextDecoder();
+    let buf = '';
+
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      buf += dec.decode(value, { stream: true });
+      const lines = buf.split('\n');
+      buf = lines.pop();
+      for (const line of lines) {
+        if (!line.startsWith('data: ')) continue;
+        const raw = line.slice(6);
+        if (raw === '[DONE]') { onDone(); return; }
+        try { handleEvent(JSON.parse(raw)); } catch {}
+      }
+    }
+    onDone();
+  } catch (e) {
+    showToast('搜索失败：' + e.message);
+    setProgress(0);
+  }
+}
+
+function handleEvent(ev) {
+  switch (ev.type) {
+    case 'translations':
+      state.translations = ev.data;
+      renderTranslations(ev.data);
+      setProgress(15);
+      break;
+    case 'query':
+      state.searchQuery = ev.data;
+      break;
+    case 'platform':
+      state.pendingCount--;
+      state.platforms[ev.data.platform] = ev.data;
+      state.platformOrder.push(ev.data.platform);
+      renderPlatform(ev.data);
+      removeSkeleton(ev.data.platform);
+      const done = Object.keys(state.platforms).length;
+      const total = state.pendingCount + done;
+      setProgress(15 + Math.round((done / Math.max(total, 1)) * 70));
+      break;
+    case 'summary':
+      state.summary = ev.data;
+      renderSummary(ev.data);
+      setProgress(95);
+      break;
+  }
+}
+
+function onDone() {
+  setProgress(100);
+  // Show AI hint if no summary and no API key
+  if (!state.summary && !localStorage.getItem('anthropic_key')) {
+    document.getElementById('ai-hint').style.display = 'flex';
+  }
+  setTimeout(() => setProgress(0), 800);
+  // Remove any remaining skeletons
+  document.querySelectorAll('.skeleton-card, .skeleton-section').forEach(el => el.remove());
+}
+
+// ── Render ────────────────────────────────────────────────────────────────────
+function renderTranslations(translations) {
+  const el = document.getElementById('trans-row');
+  el.innerHTML = translations.map((t, i) => {
+    const isActive = i === state.activeLangIdx;
+    return `<div class="trans-pill${isActive ? ' active' : ''}" onclick="searchWithLang(${i})" title="点击以${t.language}搜索">
+      <span class="lang-badge">${escHtml(t.language)}</span>
+      <span class="lang-text">${escHtml(t.text)}</span>
+    </div>`;
+  }).join('');
+  // Sync the lang bar on re-render (e.g. after new search)
+  const bar = document.getElementById('search-lang-bar');
+  if (state.queryOverride && state.activeLangIdx !== null) {
+    const t = translations[state.activeLangIdx] || {};
+    document.getElementById('search-lang-label').textContent = t.language || '';
+    document.getElementById('search-lang-query').textContent = state.queryOverride;
+    bar.style.display = 'flex';
+  }
+}
+
+function renderSummary(text) {
+  document.getElementById('summary-text').textContent = text;
+  document.getElementById('summary-card').style.display = 'block';
+}
+
+function renderPlatform(data) {
+  const conf = getPlatConf(data.platform);
+  const listEl = document.getElementById('results-list');
+
+  // Count results
+  const count = data.results ? data.results.length : 0;
+  state.totalResults += count;
+
+  // Update total count tab
+  document.getElementById('count-all').textContent = state.totalResults;
+
+  // Add tab
+  const tabsEl = document.getElementById('plat-tabs');
+  const tabId = `tab-${data.platform.replace(/\s/g,'_')}`;
+  if (!document.getElementById(tabId)) {
+    tabsEl.insertAdjacentHTML('beforeend',
+      `<button id="${tabId}" class="plat-tab" data-filter="${escHtml(data.platform)}"
+         onclick="setFilter('${escHtml(data.platform).replace(/'/g, "\\'")}')">
+        ${conf.icon} ${escHtml(data.platform)}
+        <span class="tab-count">${count}</span>
+      </button>`
+    );
+  }
+
+  // Build section HTML
+  const sectionId = `section-${data.platform.replace(/\s/g,'_')}`;
+  let html = `<div class="platform-section" id="${sectionId}" data-platform="${escHtml(data.platform)}">
+    <div class="plat-section-header">
+      <div class="plat-section-title">
+        <span class="plat-dot ${conf.dot}" style="flex-shrink:0"></span>
+        ${conf.icon} ${escHtml(data.platform)}
+        ${data.error ? `<span style="color:#f87171;font-size:0.7rem" title="${escHtml(data.error)}">（搜索失败）</span>` : ''}
+      </div>
+      ${data.search_url ? `<a class="plat-link" href="${escHtml(data.search_url)}" target="_blank" rel="noopener">
+        在平台搜索
+        <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/>
+        </svg>
+      </a>` : ''}
+    </div>`;
+
+  if (data.link_only) {
+    html += `<a class="link-card" href="${escHtml(data.search_url)}" target="_blank" rel="noopener">
+      <div class="link-card-left">
+        <span style="font-size:1.4rem">${conf.icon}</span>
+        <div>
+          <div class="link-card-label">在 ${escHtml(data.platform)} 搜索</div>
+          <div class="link-card-sub">${escHtml(data.search_url)}</div>
+        </div>
+      </div>
+      <div class="link-card-arrow">
+        <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/>
+        </svg>
+      </div>
+    </a>`;
+  } else if (data.results && data.results.length > 0) {
+    for (const r of data.results) {
+      html += resultCardHtml(r, data.platform, conf);
+    }
+  } else {
+    html += `<div style="color:var(--text-muted);font-size:0.82rem;padding:0.75rem 0">
+      ${data.error ? `搜索出错：${escHtml(data.error)}` : '暂无结果'}
+    </div>`;
+  }
+
+  html += '</div>';
+
+  // Replace skeleton if exists
+  const existing = document.getElementById(sectionId);
+  if (existing) {
+    existing.outerHTML = html;
+  } else {
+    listEl.insertAdjacentHTML('beforeend', html);
+  }
+}
+
+function resultCardHtml(r, platform, conf) {
+  const domain = r.domain || '';
+  const faviconUrl = domain ? `https://www.google.com/s2/favicons?domain=${domain}&sz=16` : '';
+  const titleZh = r.title_zh && r.title_zh !== r.title ? r.title_zh : '';
+  const snippetZh = r.snippet_zh && r.snippet_zh !== r.snippet ? r.snippet_zh : '';
+
+  let footer = '';
+  if (r.authors)   footer += `<span>✍ ${escHtml(r.authors)}</span>`;
+  if (r.date)      footer += `<span>📅 ${escHtml(r.date)}</span>`;
+  if (r.subreddit) footer += `<span>${escHtml(r.subreddit)}</span>`;
+  if (r.score !== undefined) footer += `<span>▲ ${r.score}</span>`;
+  if (r.comments !== undefined) footer += `<span>💬 ${r.comments}</span>`;
+
+  // YouTube: show thumbnail alongside text
+  if (r.thumbnail) {
+    return `<a class="result-card" href="${escHtml(r.url)}" target="_blank" rel="noopener">
+      <div class="yt-card">
+        <img class="yt-thumb" src="${escHtml(r.thumbnail)}" alt="" loading="lazy"
+             onerror="this.style.display='none'">
+        <div class="yt-card-body">
+          <div class="card-meta">
+            <div class="card-domain">${escHtml(domain)}</div>
+            <span class="card-badge ${conf.badge}">${escHtml(platform)}</span>
+          </div>
+          <div class="card-title">${escHtml(r.title)}</div>
+          ${titleZh ? `<div class="card-title-zh"><span class="zh-badge">译</span>${escHtml(titleZh)}</div>` : ''}
+          ${r.snippet ? `<div class="card-snippet">${escHtml(r.snippet)}</div>` : ''}
+          ${snippetZh ? `<hr class="zh-sep"><div class="card-snippet-zh">${escHtml(snippetZh)}</div>` : ''}
+        </div>
+      </div>
+    </a>`;
+  }
+
+  return `<a class="result-card" href="${escHtml(r.url)}" target="_blank" rel="noopener">
+    <div class="card-meta">
+      <div class="card-domain">
+        ${faviconUrl ? `<img src="${faviconUrl}" onerror="this.style.display='none'" alt="">` : ''}
+        ${escHtml(domain)}
+      </div>
+      <span class="card-badge ${conf.badge}">${escHtml(platform)}</span>
+    </div>
+    <div class="card-title">${escHtml(r.title)}</div>
+    ${titleZh ? `<div class="card-title-zh"><span class="zh-badge">译</span>${escHtml(titleZh)}</div>` : ''}
+    ${r.snippet ? `<div class="card-snippet">${escHtml(r.snippet)}</div>` : ''}
+    ${snippetZh ? `<hr class="zh-sep"><div class="card-snippet-zh">${escHtml(snippetZh)}</div>` : ''}
+    ${footer ? `<div class="card-footer">${footer}</div>` : ''}
+  </a>`;
+}
+
+function skeletonSection(platformKey) {
+  const skId = `skeleton-${platformKey}`;
+  return `<div class="skeleton-section" id="${skId}" style="margin-bottom:1.75rem">
+    <div class="skel-line" style="height:14px;width:120px;margin-bottom:0.75rem"></div>
+    ${[80,95,70].map(w =>
+      `<div class="skeleton-card">
+        <div class="skel-line" style="height:11px;width:${w}px;margin-bottom:0.4rem"></div>
+        <div class="skel-line" style="height:14px;width:260px;margin-bottom:0.4rem"></div>
+        <div class="skel-line" style="height:11px;width:200px"></div>
+      </div>`
+    ).join('')}
+  </div>`;
+}
+
+function removeSkeleton(platformName) {
+  // Remove platform-key-based skeleton (best effort)
+  const keyMap = {
+    'DuckDuckGo': 'duckduckgo', 'YouTube': 'youtube', 'arXiv': 'arxiv',
+    'Reddit': 'reddit', 'ResearchGate': 'researchgate',
+    'DEF CON': 'defcon', 'Black Hat': 'blackhat',
+  };
+  const key = keyMap[platformName];
+  if (key) {
+    const el = document.getElementById(`skeleton-${key}`);
+    if (el) el.remove();
+  }
+}
+
+// ── Tabs / Filter ─────────────────────────────────────────────────────────────
+function setFilter(platform) {
+  state.filter = platform;
+  document.querySelectorAll('.plat-tab').forEach(t => {
+    t.classList.toggle('active', t.dataset.filter === platform);
+  });
+  document.querySelectorAll('.platform-section').forEach(s => {
+    if (platform === 'all') {
+      s.style.display = '';
+    } else {
+      s.style.display = s.dataset.platform === platform ? '' : 'none';
+    }
+  });
+}
+
+// ── Progress ─────────────────────────────────────────────────────────────────
+function setProgress(pct) {
+  document.getElementById('progress-fill').style.width = pct + '%';
+}
+
+// ── Markdown Export ───────────────────────────────────────────────────────────
+function buildMarkdown() {
+  const lines = [`# 搜索结果：${state.keyword}\n`];
+  lines.push(`> 英文搜索词：**${state.searchQuery}**\n`);
+
+  if (state.translations.length) {
+    lines.push('## 翻译\n');
+    lines.push('| 语言 | 翻译 |');
+    lines.push('|------|------|');
+    state.translations.forEach(t => lines.push(`| ${t.language} | ${t.text} |`));
+    lines.push('');
+  }
+
+  if (state.summary) {
+    lines.push('## ✨ AI 综合分析\n');
+    lines.push(state.summary + '\n');
+  }
+
+  const platIcons = { 'DuckDuckGo':'🔍','YouTube':'▶','arXiv':'📄','Reddit':'💬','ResearchGate':'🔬','DEF CON':'🛡','Black Hat':'🎩' };
+  for (const pName of state.platformOrder) {
+    const p = state.platforms[pName];
+    const icon = platIcons[pName] || '🌐';
+    lines.push(`## ${icon} ${p.platform}\n`);
+    if (p.search_url) lines.push(`**搜索链接**：[在 ${p.platform} 搜索](${p.search_url})\n`);
+    if (p.link_only) { lines.push(''); continue; }
+    if (p.results && p.results.length) {
+      p.results.forEach(r => {
+        lines.push(`- **[${r.title}](${r.url})**`);
+        if (r.authors) lines.push(`  *${r.authors}*`);
+        if (r.subreddit) lines.push(`  ${r.subreddit}`);
+        if (r.snippet) lines.push(`  > ${r.snippet}`);
+        lines.push('');
+      });
+    }
+    lines.push('---\n');
+  }
+  return lines.join('\n');
+}
+
+function copyMarkdown() {
+  const md = buildMarkdown();
+  if (!md.trim()) { showToast('暂无结果可复制'); return; }
+  navigator.clipboard.writeText(md).then(() => showToast('Markdown 已复制到剪贴板'));
+}
+
+// ── Language display mode ─────────────────────────────────────────────────────
+function setLangMode(mode) {
+  document.body.classList.remove('lang-original', 'lang-chinese', 'lang-bilingual');
+  document.body.classList.add(`lang-${mode}`);
+  ['bilingual','chinese','original'].forEach(m => {
+    document.getElementById(`lt-${m}`).classList.toggle('active', m === mode);
+  });
+}
+
+// ── Language tag toggle ──────────────────────────────────────────────────────
+document.getElementById('lang-tags').addEventListener('click', e => {
+  const tag = e.target.closest('.tag');
+  if (tag) tag.classList.toggle('active');
+});
+
+// ── Keyboard shortcuts ───────────────────────────────────────────────────────
+document.addEventListener('keydown', e => {
+  if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+    const lp = document.getElementById('landing');
+    if (lp.style.display !== 'none' && lp.offsetParent !== null) startSearch();
+    else headerSearch();
+  }
+  if (e.key === 'Escape') closeSettings();
+});
+</script>
+</body>
+</html>
